@@ -1,4 +1,6 @@
-= Backend Functionality
+# Backend Functionality Plans
+
+# General Outline
 
 - login-less infrastructure where you use your email and some OTP passowrd to login 
 - pocketbase does OTPs by itself, so we dont really have to implement it by ourselves either.
@@ -12,7 +14,7 @@ This is how I envision onboarding will look like:
 4. Reveal match by logging into your own personal pseudo names and then a few days later prevent all logins. Then do the data-science bs
 
 
-== Representing Questionares in Databases
+## Representing Questionares in Databases
 
 - since we are using sqlite inside pocketbase, we are able to use a GUI to draw out our questionare
 - there should be different types of questions:
