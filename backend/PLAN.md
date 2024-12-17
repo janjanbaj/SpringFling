@@ -1,6 +1,7 @@
 = Backend Functionality
 
 - login-less infrastructure where you use your email and some OTP passowrd to login 
+- pocketbase does OTPs by itself, so we dont really have to implement it by ourselves either.
 - assign some special adjective + animal name combo for anonymous interactions.
 
 This is how I envision onboarding will look like:
