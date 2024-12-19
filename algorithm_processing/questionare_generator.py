@@ -1,9 +1,10 @@
 import numpy as np
+import bisect
 
 
-NUMBER_OF_PEOPLE = 4
+NUMBER_OF_PEOPLE = 10
 NUMBER_OF_CATEGORIES = 5
-NUMBER_OF_TOTAL_QUESTIONS = 3
+NUMBER_OF_TOTAL_QUESTIONS = 10
 
 
 def generate_responses():
@@ -51,6 +52,10 @@ def generate_prefrence_list(male, female):
 
             result = male_responses - female_responses
 
+            if female_dict.get(woman_index) is None:
+                female_dict[woman_index] = []
+
+
             # assume a weight scale where 1-5 where lower means you care less.
             # we then take the euclidean distance between the two response vectors for the entire category.
             # then we multiply the scalar weigth. if the distance was a high and we care a lot:
@@ -59,8 +64,16 @@ def generate_prefrence_list(male, female):
             # scaled up. all other anomalies get dealt with by the Stable Mathcing Algorithm and the
             # assymetry of the eucledian distance calculations.
 
-            male_weighted_distance = np.sqrt(male_weight.reshape((len(male_weight), 1)) * (result * result)).sum(1)
-            female_weighted_distance = np.sqrt(female_weight.reshape((len(female_weight), 1)) * (result * result)).sum(1)
+            male_weighted_distance = np.sqrt(male_weight.reshape((len(male_weight), 1)) * (result * result)).sum(1).sum()
+            female_weighted_distance = np.sqrt(female_weight.reshape((len(female_weight), 1)) * (result * result)).sum(1).sum()
+
+
+            bisect.insort(male_dict[man_index], {"name": woman_index , "value": male_weighted_distance}, key=lambda x:x["value"])
+
+            bisect.insort(female_dict[woman_index], {"name": man_index , "value": female_weighted_distance}, key=lambda x:x["value"])
+
+    #return male_dict, female_dict
+    return {i: [j["name"] for j in male_dict[i]] for i in male_dict.keys()}, {i: [j["name"] for j in female_dict[i]] for i in female_dict.keys()}
 
 
 
@@ -74,4 +87,10 @@ if __name__ == "__main__":
 
     print(male)
 
-    generate_prefrence_list(male, female)
+    md,fd = generate_prefrence_list(male, female)
+
+    print("Male Preference Table")
+    print(md)
+    print("Female Preference Table")
+    print(fd)
+
