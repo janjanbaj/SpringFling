@@ -33,7 +33,7 @@ def generate_responses():
     return responses
 
 
-# need to deal with the case where there is an inequal pool. probably figure out who the least prefered person is
+# TODO: need to deal with the case where there is an inequal pool. probably figure out who the least prefered person is
 # delete them from everything and have a special state for them .
 def generate_prefrence_list(male, female):
     male_dict = {}
@@ -86,12 +86,9 @@ def generate_prefrence_list(male, female):
                 female_weighted_distance
             )
 
-            # print(
-            #    f"Male {man_index} & Female {woman_index}| M2F:{male_weighted_distance} and F2M: {female_weighted_distance}"
-            # )
-
             # insert such that it is in ascending order ie. lower distance matches, those are better matches, are ahead in the list.
             # for men use the male_weighted_distance and for women use the corresponding.
+
             bisect.insort(
                 male_dict[man_index],
                 {"name": woman_index, "value": male_weighted_distance},
@@ -104,7 +101,10 @@ def generate_prefrence_list(male, female):
                 key=lambda x: x["value"],
             )
 
-    # return male_dict, female_dict
+    return male_dict, female_dict
+
+
+def flatten_preference_dictionary(male_dict, female_dict):
     return {i: [j["name"] for j in male_dict[i]] for i in male_dict.keys()}, {
         i: [j["name"] for j in female_dict[i]] for i in female_dict.keys()
     }
@@ -143,7 +143,6 @@ def stable_matching_github(male_pref, female_pref):
                 free_men.remove(bachelor)
                 free_men.append(op)
                 break
-    ppdictionary(matches)
     return matches
 
 
@@ -171,13 +170,22 @@ if __name__ == "__main__":
 
     print(female)
 
-    md, fd = generate_prefrence_list(male, female)
+    male_preference, female_preference = generate_prefrence_list(male, female)
+
+    md, fd = flatten_preference_dictionary(male_preference, female_preference)
 
     print("Male Preference Table")
+
     ppdictionary(md)
+
     print("Female Preference Table")
+
     ppdictionary(fd)
 
     print("\nStable Matching:\n")
 
-    stable_matching_github(md, fd)
+    matches = stable_matching_github(md, fd)
+
+    print("")
+
+    ppdictionary(matches)
