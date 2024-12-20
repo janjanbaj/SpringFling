@@ -110,7 +110,7 @@ def generate_prefrence_list(male, female):
     }
 
 
-# Stable Matching Algorithm [Self-Implemented based on https://miro.medium.com/v2/resize:fit:1400/format:webp/0*LCz7ydwrvyoxgTVG.]
+# Stable Matching Algorithm [Self-Implemented based on https://medium.com/@satyalumesh/gale-shapley-algorithm-for-stable-matching-easyexpalined-17ee51ec0dfa]
 
 
 def stable_matching_github(male_pref, female_pref):
