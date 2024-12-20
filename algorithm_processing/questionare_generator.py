@@ -2,10 +2,9 @@ import numpy as np
 import bisect
 
 
-NUMBER_OF_PEOPLE = 10
+NUMBER_OF_PEOPLE = 5
 NUMBER_OF_CATEGORIES = 5
-NUMBER_OF_TOTAL_QUESTIONS = 10
-
+NUMBER_OF_QUESTIONS = 10
 
 
 def generate_responses():
@@ -25,7 +24,7 @@ def generate_responses():
             size=(
                 NUMBER_OF_PEOPLE,
                 NUMBER_OF_CATEGORIES,
-                NUMBER_OF_TOTAL_QUESTIONS + 1,
+                NUMBER_OF_QUESTIONS + 1,
             ),
         )
         + 1
@@ -74,6 +73,10 @@ def generate_prefrence_list(male, female):
             # we then take the mean of all the categories as our final score. i would think about how we could implement
             # adding variability to the mix but i feel like the mean takes care of it.
 
+            # TODO: Is there anything other than just the raw mean we can do to better represent the similarity in categories.
+            # for example: a high range (high - low) is bad because there is something that the two people were similar on but something
+            # disasterous happened that skewed them away. but at the same time we do want that
+
             male_weighted_distance = np.mean(male_weighted_distance) + np.var(
                 male_weighted_distance
             )
@@ -108,8 +111,43 @@ def generate_prefrence_list(male, female):
 # Stable Matching Algorithm [from GitHub]
 
 
+def stable_matching_github(male_pref, female_pref):
+    free_men = list(male_pref.keys())
+    matches = {i: "" for i in free_men}
+    married_women = {}
+
+    while len(free_men) != 0:
+        # select a free man
+        bachelor = free_men[0]
+        # select his favorite wifey in order of preference:
+        for wifey in male_pref[bachelor]:
+            if married_women.get(wifey) is None:
+                matches[bachelor] = wifey
+                married_women[wifey] = bachelor
+                print(f"M{bachelor} and F{wifey} get Married !")
+                free_men.remove(bachelor)
+                break
+            # if wifey is married to someone else currently, then we need to see if we will home-wreck
+            op = married_women[wifey]
+            # if the index of bachelor is lower then we can swap
+            if female_pref[wifey].index(op) > female_pref[wifey].index(bachelor):
+                matches.pop(op)
+                matches[bachelor] = wifey
+                married_women[wifey] = bachelor
+                print(
+                    f"F{wifey} and M{op} get divorced but M{bachelor} and F{wifey} get Married !"
+                )
+                free_men.remove(bachelor)
+                free_men.append(op)
+                break
+    print(matches)
+    return matches
+
 
 # Accessory Functions:
+
+
+# Pretty Print Dictionary
 def ppdictionary(dic):
     print("{")
     for key in dic.keys():
@@ -136,3 +174,7 @@ if __name__ == "__main__":
     ppdictionary(md)
     print("Female Preference Table")
     ppdictionary(fd)
+
+    print("\nStable Matching:\n")
+
+    stable_matching_github(md, fd)
