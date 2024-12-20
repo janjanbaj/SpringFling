@@ -2,7 +2,7 @@ import numpy as np
 import bisect
 
 
-NUMBER_OF_PEOPLE = 5
+NUMBER_OF_PEOPLE = 20
 NUMBER_OF_CATEGORIES = 5
 NUMBER_OF_QUESTIONS = 10
 
@@ -108,7 +108,7 @@ def generate_prefrence_list(male, female):
     }
 
 
-# Stable Matching Algorithm [from GitHub]
+# Stable Matching Algorithm [Self-Implemented based on https://miro.medium.com/v2/resize:fit:1400/format:webp/0*LCz7ydwrvyoxgTVG.]
 
 
 def stable_matching_github(male_pref, female_pref):
@@ -121,6 +121,7 @@ def stable_matching_github(male_pref, female_pref):
         bachelor = free_men[0]
         # select his favorite wifey in order of preference:
         for wifey in male_pref[bachelor]:
+            # if wifey is uncuffed,  cuff her!!!!
             if married_women.get(wifey) is None:
                 matches[bachelor] = wifey
                 married_women[wifey] = bachelor
@@ -129,7 +130,7 @@ def stable_matching_github(male_pref, female_pref):
                 break
             # if wifey is married to someone else currently, then we need to see if we will home-wreck
             op = married_women[wifey]
-            # if the index of bachelor is lower then we can swap
+            # if the index of bachelor is lower than the op's (wifey's current partner) we can swap
             if female_pref[wifey].index(op) > female_pref[wifey].index(bachelor):
                 matches.pop(op)
                 matches[bachelor] = wifey
@@ -140,7 +141,7 @@ def stable_matching_github(male_pref, female_pref):
                 free_men.remove(bachelor)
                 free_men.append(op)
                 break
-    print(matches)
+    ppdictionary(matches)
     return matches
 
 
