@@ -2,6 +2,10 @@
 WLU Spring Fling.  A match making algorithm and platform. Once a year during Spring Term @WLU
 
 
+Never merge to main directly. I am thinking we do something like this
+[!https://www.pablogonzalez.io/content/images/2023/05/CI_CD-inner-images_Gitflow-workflow.png]
+- Feature Branch -> Develop -> Main . Unless tested hotfix.
+
 
 
 # Frontend:
