@@ -2,7 +2,7 @@ import numpy as np
 import bisect
 
 
-NUMBER_OF_PEOPLE = 20
+NUMBER_OF_PEOPLE = 5
 NUMBER_OF_CATEGORIES = 5
 NUMBER_OF_QUESTIONS = 10
 
@@ -33,6 +33,8 @@ def generate_responses():
     return responses
 
 
+# need to deal with the case where there is an inequal pool. probably figure out who the least prefered person is
+# delete them from everything and have a special state for them .
 def generate_prefrence_list(male, female):
     male_dict = {}
     female_dict = {}
