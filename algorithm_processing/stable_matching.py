@@ -2,7 +2,7 @@ import numpy as np
 import bisect
 
 
-NUMBER_OF_PEOPLE = 4
+NUMBER_OF_PEOPLE = 20
 NUMBER_OF_CATEGORIES = 5
 NUMBER_OF_QUESTIONS = 5
 
@@ -178,7 +178,7 @@ def flatten_preference_dictionary(male_dict, female_dict=None):
 # Stable Matching Algorithm [Self-Implemented based on https://medium.com/@satyalumesh/gale-shapley-algorithm-for-stable-matching-easyexpalined-17ee51ec0dfa]
 
 
-def stable_matching_github(male_pref, female_pref):
+def stable_matching_hetero(male_pref, female_pref):
     free_men = list(male_pref.keys())
 
     # remove positional biases
@@ -215,8 +215,43 @@ def stable_matching_github(male_pref, female_pref):
     return matches
 
 
-def stable_matching_homo_pools(pref):
-    pass
+def stable_matching_homo(pref):
+    free_people = list(pref.keys())
+
+    if len(free_people) % 2 != 0:
+        raise ValueError("Must have an even mating pool to run Stable Matching.")
+
+    np.random.shuffle(free_people)
+
+    matches = {}
+
+    while len(free_people) != 0:
+        bachelor = free_people[0]
+
+        for wifey in pref[bachelor]:
+            if matches.get(wifey) is None:
+                matches[bachelor] = wifey
+                matches[wifey] = bachelor
+                print(f"{bachelor} & {wifey} get Married !")
+                free_people.remove(bachelor)
+                free_people.remove(wifey)
+                break
+
+            op = matches[wifey]
+
+            # print(f"W{wifey} | OP:{op} | Bach:{bachelor}")
+
+            if pref[wifey].index(op) > pref[wifey].index(bachelor):
+                matches.pop(op)
+                matches[bachelor] = wifey
+                matches[wifey] = bachelor
+                print(f"{op} & {wifey} get Divorced !")
+                print(f"{bachelor} & {wifey} get Married !")
+                free_people.remove(bachelor)
+                free_people.append(op)
+                break
+
+    return matches
 
 
 # Accessory Functions:
@@ -231,6 +266,8 @@ def ppdictionary(dic):
 
 
 def test_random_stable_matching_hetero():
+    print("\nStable Matching Hetero Demo:\n")
+
     male = generate_responses()
 
     female = generate_responses()
@@ -257,7 +294,7 @@ def test_random_stable_matching_hetero():
 
     print("\nStable Matching:\n")
 
-    matches = stable_matching_github(md, fd)
+    matches = stable_matching_hetero(md, fd)
 
     print("")
 
@@ -265,16 +302,24 @@ def test_random_stable_matching_hetero():
 
 
 def test_random_stable_matching_homo():
+    print("\nStable Matching Homo Demo:\n")
     popn1 = generate_responses()
     popn2 = generate_responses()
 
     popn = popn1 | popn2
 
-    result = generate_homo_preference_list(popn)
+    result = flatten_preference_dictionary(generate_homo_preference_list(popn))
 
-    ppdictionary(flatten_preference_dictionary(result))
+    ppdictionary(result)
+
+    matches = stable_matching_homo(result)
+
+    ppdictionary(matches)
+    print("")
+
+    return
 
 
 if __name__ == "__main__":
-    # test_random_stable_matching_hetero()
+    test_random_stable_matching_hetero()
     test_random_stable_matching_homo()
