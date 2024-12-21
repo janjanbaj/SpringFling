@@ -2,9 +2,9 @@ import numpy as np
 import bisect
 
 
-NUMBER_OF_PEOPLE = 5
+NUMBER_OF_PEOPLE = 4
 NUMBER_OF_CATEGORIES = 5
-NUMBER_OF_QUESTIONS = 10
+NUMBER_OF_QUESTIONS = 5
 
 
 def generate_responses():
@@ -33,9 +33,65 @@ def generate_responses():
     return responses
 
 
+def generate_homo_preference_list(popn):
+    result_dict = {}
+
+    for man_index in range(len(popn) - 1):
+        current_man = popn[man_index]
+
+        if result_dict.get(man_index) is None:
+            result_dict[man_index] = []
+
+        male_weight = current_man[:, 0]
+        male_responses = current_man[:, 1:]
+
+        for woman_index in range(man_index + 1, len(popn)):
+            current_woman = popn[woman_index]
+
+            female_weight = current_woman[:, 0]
+            female_responses = current_woman[:, 1:]
+
+            result = male_responses - female_responses
+
+            # print(f"{male_responses}\n{female_responses}\n{result}\n{result.sum(1)}\n")
+            # print(f"MW:{male_weight}|FW:{female_weight}")
+
+            if result_dict.get(woman_index) is None:
+                result_dict[woman_index] = []
+
+            male_weighted_distance = np.sqrt(
+                male_weight.reshape((len(male_weight), 1)) * (result * result)
+            ).sum(1)
+            female_weighted_distance = np.sqrt(
+                female_weight.reshape((len(female_weight), 1)) * (result * result)
+            ).sum(1)
+
+            male_weighted_distance = np.mean(male_weighted_distance) + np.var(
+                male_weighted_distance
+            )
+            female_weighted_distance = np.mean(female_weighted_distance) + np.var(
+                female_weighted_distance
+            )
+
+            bisect.insort(
+                result_dict[man_index],
+                {"name": woman_index, "value": male_weighted_distance},
+                key=lambda x: x["value"],
+            )
+
+            bisect.insort(
+                result_dict[woman_index],
+                {"name": man_index, "value": female_weighted_distance},
+                key=lambda x: x["value"],
+            )
+
+    return result_dict
+
+
 # TODO: need to deal with the case where there is an inequal pool. probably figure out who the least prefered person is
 # delete them from everything and have a special state for them .
 def generate_prefrence_list(male, female):
+    # print("\nPreference List Calculations: ")
     male_dict = {}
     female_dict = {}
 
@@ -52,6 +108,9 @@ def generate_prefrence_list(male, female):
             female_responses = current_woman[:, 1:]
 
             result = male_responses - female_responses
+
+            # print(f"{male_responses}\n{female_responses}\n{result}\n{result.sum(1)}\n")
+            # print(f"MW:{male_weight}|FW:{female_weight}")
 
             if female_dict.get(woman_index) is None:
                 female_dict[woman_index] = []
@@ -86,6 +145,9 @@ def generate_prefrence_list(male, female):
                 female_weighted_distance
             )
 
+            # print(f"M{man_index} & F{woman_index}: {male_weighted_distance}")
+            # print(f"F{woman_index} & M{man_index}: {female_weighted_distance}")
+
             # insert such that it is in ascending order ie. lower distance matches, those are better matches, are ahead in the list.
             # for men use the male_weighted_distance and for women use the corresponding.
 
@@ -101,13 +163,16 @@ def generate_prefrence_list(male, female):
                 key=lambda x: x["value"],
             )
 
+    # print("")
     return male_dict, female_dict
 
 
-def flatten_preference_dictionary(male_dict, female_dict):
-    return {i: [j["name"] for j in male_dict[i]] for i in male_dict.keys()}, {
-        i: [j["name"] for j in female_dict[i]] for i in female_dict.keys()
-    }
+def flatten_preference_dictionary(male_dict, female_dict=None):
+    if female_dict is not None:
+        return {i: [j["name"] for j in male_dict[i]] for i in male_dict.keys()}, {
+            i: [j["name"] for j in female_dict[i]] for i in female_dict.keys()
+        }
+    return {i: [j["name"] for j in male_dict[i]] for i in male_dict.keys()}
 
 
 # Stable Matching Algorithm [Self-Implemented based on https://medium.com/@satyalumesh/gale-shapley-algorithm-for-stable-matching-easyexpalined-17ee51ec0dfa]
@@ -115,6 +180,10 @@ def flatten_preference_dictionary(male_dict, female_dict):
 
 def stable_matching_github(male_pref, female_pref):
     free_men = list(male_pref.keys())
+
+    # remove positional biases
+    np.random.shuffle(free_men)
+
     matches = {i: "" for i in free_men}
     married_women = {}
 
@@ -146,6 +215,10 @@ def stable_matching_github(male_pref, female_pref):
     return matches
 
 
+def stable_matching_homo_pools(pref):
+    pass
+
+
 # Accessory Functions:
 
 
@@ -157,7 +230,7 @@ def ppdictionary(dic):
     print("}")
 
 
-if __name__ == "__main__":
+def test_random_stable_matching_hetero():
     male = generate_responses()
 
     female = generate_responses()
@@ -189,3 +262,19 @@ if __name__ == "__main__":
     print("")
 
     ppdictionary(matches)
+
+
+def test_random_stable_matching_homo():
+    popn1 = generate_responses()
+    popn2 = generate_responses()
+
+    popn = popn1 | popn2
+
+    result = generate_homo_preference_list(popn)
+
+    ppdictionary(flatten_preference_dictionary(result))
+
+
+if __name__ == "__main__":
+    # test_random_stable_matching_hetero()
+    test_random_stable_matching_homo()
