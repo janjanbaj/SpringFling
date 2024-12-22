@@ -53,9 +53,6 @@ def generate_homo_preference_list(popn):
 
             result = male_responses - female_responses
 
-            # print(f"{male_responses}\n{female_responses}\n{result}\n{result.sum(1)}\n")
-            # print(f"MW:{male_weight}|FW:{female_weight}")
-
             if result_dict.get(woman_index) is None:
                 result_dict[woman_index] = []
 
@@ -92,6 +89,12 @@ def generate_homo_preference_list(popn):
 # delete them from everything and have a special state for them .
 def generate_prefrence_list(male, female):
     # print("\nPreference List Calculations: ")
+
+    if len(male) != len(female):
+        raise ValueError(
+            "Both pools have to be of same size! Cannot run Stable Matching with inequal pools."
+        )
+
     male_dict = {}
     female_dict = {}
 
