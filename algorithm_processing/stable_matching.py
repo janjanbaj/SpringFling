@@ -7,7 +7,7 @@ NUMBER_OF_CATEGORIES = 5
 NUMBER_OF_QUESTIONS = 10
 
 
-def generate_responses():
+def generate_responses(NUMBER_OF_PEOPLE = 5, NUMBER_OF_CATEGORIES = 5, NUMBER_OF_QUESTIONS = 10):
     # the first index will correspond to the i'th person and their reponse
     # the second index will correspond to the j'th category of questions.
     # the third index will correspond to the k'th question within the i'th category of questions.
