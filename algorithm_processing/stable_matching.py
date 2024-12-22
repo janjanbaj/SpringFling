@@ -257,6 +257,13 @@ def stable_matching_homo(pref):
     return matches
 
 
+# Brute Force All Pairings: O() algorithm that we will memoize:
+# Idea: Create a Matrix of (m x f) iterate over all possible non overlapping diagonals. Those a
+def brute_force_all_pairings(male, female):
+    if len(male) != len(female):
+        raise ValueError("Matching Pools must be of the same size")
+
+
 # Accessory Functions:
 
 
