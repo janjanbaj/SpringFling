@@ -311,6 +311,7 @@ def test_random_stable_matching_homo():
     result = flatten_preference_dictionary(generate_homo_preference_list(popn))
 
     ppdictionary(result)
+    print("")
 
     matches = stable_matching_homo(result)
 
