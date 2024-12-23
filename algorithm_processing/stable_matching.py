@@ -262,6 +262,12 @@ def stable_matching_homo(pref):
 def brute_force_all_pairings(male, female):
     if len(male) != len(female):
         raise ValueError("Matching Pools must be of the same size")
+    return
+
+
+# Hungarian Algorithm: O(n^3) approach to Optimal Matching
+def hungarian_matching(pref):
+    pass
 
 
 # Accessory Functions:

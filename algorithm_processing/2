@@ -131,8 +131,12 @@ The return distance removes some meta information we needed and strips off all t
 
 = The Issue with the Stable Matching Approach:
 
-It is completely one-sided, that is whatever side is making the proposals to get married gets the best matchings. Here, since we assume Men are making the proposals the Men will always find a Woman that they most prefer. Woman, on the other hand do not get to choose who they want to be with. Sure, they can reject any man that they do not prefer for a Man that they do prefer but the lack of action prevents them from seeking the maximal preference man or the man that they like the most! It is the case that tf their preference is reciprocated then only will they get their best match. If some man $m in M$ that they do not prefer is the only one to propse to her and no one else proposes to her, she is stuck with him. Thus making this algorithm man-optimal and women-pessimal. Or in a gender neutral categorization: proposer-optimal. 
+It is completely one-sided, that is whatever side is making the proposals to get married. Here, since we assume Men are making the proposals the Men will always find a Woman that they most prefer. Woman, on the other hand do not get to choose who they want to be with. If their preference is reciprocated then only will they get their best match. If some man $m in M$ that they do not prefer is the only one to propse to her and no one else proposes to her, she is stuck with him. Thus making this algorithm man-optimal and women-pessimal. Or in a gender neutral categorization: proposer-optimal. 
 
 Life Lesson: Be active, taking initiative; go out there and get what you want !
+
+
+
+
 
 
