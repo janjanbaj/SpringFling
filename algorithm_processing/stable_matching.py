@@ -4,7 +4,7 @@ import bisect
 
 NUMBER_OF_PEOPLE = 20
 NUMBER_OF_CATEGORIES = 5
-NUMBER_OF_QUESTIONS = 5
+NUMBER_OF_QUESTIONS = 10
 
 
 def generate_responses():
@@ -199,7 +199,7 @@ def stable_matching_hetero(male_pref, female_pref):
             if married_women.get(wifey) is None:
                 matches[bachelor] = wifey
                 married_women[wifey] = bachelor
-                print(f"M{bachelor} and F{wifey} get Married !")
+                # print(f"M{bachelor} and F{wifey} get Married !")
                 free_men.remove(bachelor)
                 break
             # if wifey is married to someone else currently, then we need to see if we will home-wreck
@@ -209,9 +209,9 @@ def stable_matching_hetero(male_pref, female_pref):
                 matches.pop(op)
                 matches[bachelor] = wifey
                 married_women[wifey] = bachelor
-                print(
-                    f"F{wifey} and M{op} get divorced but M{bachelor} and F{wifey} get Married !"
-                )
+                # print(
+                #     f"F{wifey} and M{op} get divorced but M{bachelor} and F{wifey} get Married !"
+                # )
                 free_men.remove(bachelor)
                 free_men.append(op)
                 break
@@ -235,7 +235,7 @@ def stable_matching_homo(pref):
             if matches.get(wifey) is None:
                 matches[bachelor] = wifey
                 matches[wifey] = bachelor
-                print(f"{bachelor} & {wifey} get Married !")
+                # print(f"{bachelor} & {wifey} get Married !")
                 free_people.remove(bachelor)
                 free_people.remove(wifey)
                 break
@@ -248,8 +248,8 @@ def stable_matching_homo(pref):
                 matches.pop(op)
                 matches[bachelor] = wifey
                 matches[wifey] = bachelor
-                print(f"{op} & {wifey} get Divorced !")
-                print(f"{bachelor} & {wifey} get Married !")
+                # print(f"{op} & {wifey} get Divorced !")
+                # print(f"{bachelor} & {wifey} get Married !")
                 free_people.remove(bachelor)
                 free_people.append(op)
                 break
@@ -263,11 +263,6 @@ def brute_force_all_pairings(male, female):
     if len(male) != len(female):
         raise ValueError("Matching Pools must be of the same size")
     return
-
-
-# Hungarian Algorithm: O(n^3) approach to Optimal Matching
-def hungarian_matching(pref):
-    pass
 
 
 # Accessory Functions:
@@ -339,4 +334,4 @@ def test_random_stable_matching_homo():
 
 if __name__ == "__main__":
     test_random_stable_matching_hetero()
-    test_random_stable_matching_homo()
+    # test_random_stable_matching_homo()

@@ -129,10 +129,19 @@ We basically get the weighted eucledian distance for every single category and t
 
 The return distance removes some meta information we needed and strips off all thevalues that help us sort things.
 
+#pagebreak()
+
 = The Issue with the Stable Matching Approach:
 
 It is completely one-sided, that is whatever side is making the proposals to get married gets the best matchings. Here, since we assume Men are making the proposals the Men will always find a Woman that they most prefer. Woman, on the other hand do not get to choose who they want to be with. Sure, they can reject any man that they do not prefer for a Man that they do prefer but the lack of action prevents them from seeking the maximal preference man or the man that they like the most! It is the case that tf their preference is reciprocated then only will they get their best match. If some man $m in M$ that they do not prefer is the only one to propse to her and no one else proposes to her, she is stuck with him. Thus making this algorithm man-optimal and women-pessimal. Or in a gender neutral categorization: proposer-optimal. 
 
 Life Lesson: Be active, taking initiative; go out there and get what you want !
 
+Ref: https://econweb.ucsd.edu/~jsobel/172f12/matchingnotes.pdf
+
+= Globally Optimal Match Making:
+
+We would like to find a #link("https://en.wikipedia.org/wiki/Pareto_efficiency")[Pareto-Optimal Matching] ie. a universally optimal matching where any other matching would cause someone else to be worse off. There are a few things we want to assume such that it makes matching a bit easier. We want a strict order in our preference lists as indifference causes a wide range of issues that are important and dealt with and some would argue realistic in real life situations but dealing with that is beyond the scope of match makingin this domain.
+
+Ref: https://economics.brown.edu/sites/default/files/papers/2008-12_paper.pdf
 
