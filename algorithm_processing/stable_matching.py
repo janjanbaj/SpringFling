@@ -1,8 +1,9 @@
 import numpy as np
 import bisect
 
+from stdlib import Graph
 
-NUMBER_OF_PEOPLE = 20
+NUMBER_OF_PEOPLE = 10
 NUMBER_OF_CATEGORIES = 5
 NUMBER_OF_QUESTIONS = 10
 
@@ -262,16 +263,69 @@ def stable_matching_homo(pref):
 def brute_force_all_pairings(male, female):
     if len(male) != len(female):
         raise ValueError("Matching Pools must be of the same size")
+    pass
+
+
+def top_trading_cycle_algorithm(suitor_preferences, courted_preferences):
+    matches = {}
+    suitors = set(suitor_preferences.keys())
+    courteds = set(courted_preferences.keys())
+
+    all_nodes = suitors | courteds
+
+    network = Graph(all_nodes)
+
+    courted_q = {}
+    suitor_q = {}
+
+    for s in suitors:
+        courted_q[s] = 0
+        network.add_edge(s, suitor_preferences[s][0])
+
+    for c in courteds:
+        suitor_q[c] = 0
+        network.add_edge(c, courted_preferences[c][0])
+
+    while network.number_of_nodes_in_graph() > 0:
+        cycle = network.find_cycle()
+
+        if cycle is not None:
+            for node in cycle:
+                if node in suitors:
+                    court = network.nodes[node].get_next_node()
+                    matches[node] = court
+                    matches[court] = node
+                    network.delete_node(court)
+                    network.delete_node(node)
+
     return
+
+
+def test_random_ttc_hetero():
+    print("\nTop Trading Cycle Random:\n")
+
+    male = generate_responses()
+    female = generate_responses()
+
+    print(male, female)
+
+
+# Assumes that matches is a dictionary with key as males and values as females
+def score_matching(matches, male_pref, female_pref):
+    score = 0
+    for male in matches.keys():
+        female = matches[male]
+        score += female_pref[female].index(male) + male_pref[male].index(female)
+    return score
 
 
 # Accessory Functions:
 
 
-# Pretty Print Dictionary
+## Pretty Print Dictionary
 def ppdictionary(dic):
     print("{")
-    for key in dic.keys():
+    for key in sorted(dic.keys()):
         print(f"{key}: {dic[key]}")
     print("}")
 
@@ -314,6 +368,7 @@ def test_random_stable_matching_hetero():
 
 def test_random_stable_matching_homo():
     print("\nStable Matching Homo Demo:\n")
+
     popn1 = generate_responses()
     popn2 = generate_responses()
 
@@ -329,9 +384,8 @@ def test_random_stable_matching_homo():
     ppdictionary(matches)
     print("")
 
-    return
-
 
 if __name__ == "__main__":
-    test_random_stable_matching_hetero()
+    # test_random_stable_matching_hetero()
     # test_random_stable_matching_homo()
+    test_random_ttc_hetero()
