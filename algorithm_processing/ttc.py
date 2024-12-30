@@ -229,3 +229,11 @@ if __name__ == "__main__":
     ppdictionary(matches)
 
     print(f"Score: {score_matching(matches, mpl, fpl)}")
+
+    print("\nGale-Shapley Woman Optimal:")
+
+    matches = stable_matching_hetero(fpl, mpl)
+
+    ppdictionary(matches)
+
+    print(f"Score: {score_matching(matches, fpl, mpl)}")

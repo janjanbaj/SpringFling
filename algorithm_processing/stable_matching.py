@@ -3,7 +3,7 @@ import bisect
 
 from stdlib import Graph
 
-NUMBER_OF_PEOPLE = 10
+NUMBER_OF_PEOPLE = 20
 NUMBER_OF_CATEGORIES = 5
 NUMBER_OF_QUESTIONS = 10
 
@@ -258,46 +258,43 @@ def stable_matching_homo(pref):
     return matches
 
 
-# Brute Force All Pairings: O() algorithm that we will memoize:
-# Idea: Create a Matrix of (m x f) iterate over all possible non overlapping diagonals. Those a
-def brute_force_all_pairings(male, female):
-    if len(male) != len(female):
-        raise ValueError("Matching Pools must be of the same size")
-    pass
+def all_stable_marriages(mpl, fpl, n):
+    marriage = []
+    male_counter = []
+    unchanged = [-1 for _ in range(n)]
+    success = False
+
+    def proposal(i, malec, marriage,c):
+        if i < 0:
+            success = True
+        elif  i = 0 or malec[i] = n+1 or not unchanged[i]:
+            success = False
+        else:
+            c = c + 1
+            j = malec[i]
+            malec[i] = j+1
+            refusal(i, mpl[i][j], marriage, c)
+        return 
+
+    def refusal(i,j, malec, marriage,c):
+        
+
+    def break_marriage(male_counter, marriage, i, n, count):
+        marriage[mpl[i][male_counter[i] - 1]] = -i
+        proposal(i, male_counter, marriage, count)
+        if not success:
+            unchanged[i] = False
+            return
+        # stable_marriage(marriage, n, count)
+        for j in range(i, n):
+            break_marriage(male_counter, marriage, j, n, count)
+        for j in range(i + 1, n):
+            unchanged[j] = True
+        unchanged[i] = False
+        return
 
 
-def top_trading_cycle_algorithm(suitor_preferences, courted_preferences):
-    matches = {}
-    suitors = set(suitor_preferences.keys())
-    courteds = set(courted_preferences.keys())
-
-    all_nodes = suitors | courteds
-
-    network = Graph(all_nodes)
-
-    courted_q = {}
-    suitor_q = {}
-
-    for s in suitors:
-        courted_q[s] = 0
-        network.add_edge(s, suitor_preferences[s][0])
-
-    for c in courteds:
-        suitor_q[c] = 0
-        network.add_edge(c, courted_preferences[c][0])
-
-    while network.number_of_nodes_in_graph() > 0:
-        cycle = network.find_cycle()
-
-        if cycle is not None:
-            for node in cycle:
-                if node in suitors:
-                    court = network.nodes[node].get_next_node()
-                    matches[node] = court
-                    matches[court] = node
-                    network.delete_node(court)
-                    network.delete_node(node)
-
+    # i,j,k
     return
 
 
