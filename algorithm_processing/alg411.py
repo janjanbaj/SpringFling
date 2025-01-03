@@ -9,6 +9,7 @@ from stable_matching import (
 
 
 def refusal(current_woman, potential_huzz, marriages, male_pref, female_pref):
+    print(current_woman, potential_huzz)
     current_huzz = marriages.get(current_woman)
     # if not married to anyone then just marry them off. gets rid of the dummy husband requirement.
     if current_huzz is None:
@@ -16,15 +17,14 @@ def refusal(current_woman, potential_huzz, marriages, male_pref, female_pref):
     else:
         current_huzz_index = female_pref[current_woman].index(current_huzz)
     potential_huzz_index = female_pref[current_woman].index(potential_huzz)
-
+    # either case, potential huzz cannot get the same woman twice, so remove her from the list
+    male_pref[potential_huzz].remove(current_woman)
     # Check if current woman prefers the potential husband more than who she is married to.
     if potential_huzz_index < current_huzz_index:
         # switch marriage
         marriages[current_woman] = potential_huzz
         # remove current woman from new husband's list because they cant get married again if she decides to divorce him.
-        male_pref[potential_huzz].remove(current_woman)
 
-        # call proposal on divorced husband.
         if current_huzz is None:
             return marriages
 
@@ -50,7 +50,6 @@ def recursive_stable_matching(male_pref, female_pref):
     for bachelor in male_pref.keys():
         marriages = proposal(bachelor, marriages, male_pref, female_pref)
 
-    print(marriages)
     return marriages
 
 
@@ -67,7 +66,9 @@ def main():
     ppdictionary(fd)
 
     print("\nStable Matching:\n")
-    recursive_stable_matching(md, fd)
+    matches = recursive_stable_matching(md, fd)
+
+    ppdictionary(matches)
 
 
 if __name__ == "__main__":

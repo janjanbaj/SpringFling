@@ -173,10 +173,18 @@ def generate_prefrence_list(male, female):
     return male_dict, female_dict
 
 
-def flatten_preference_dictionary(male_dict, female_dict=None):
+def flatten_preference_dictionary(male_dict, female_dict=None, tags=True):
     if female_dict is not None:
-        return {i: [j["name"] for j in male_dict[i]] for i in male_dict.keys()}, {
-            i: [j["name"] for j in female_dict[i]] for i in female_dict.keys()
+        if tags is False:
+            return {i: [j["name"] for j in male_dict[i]] for i in male_dict.keys()}, {
+                i: [j["name"] for j in female_dict[i]] for i in female_dict.keys()
+            }
+        return {
+            str(i) + "M": [str(j["name"]) + "F" for j in male_dict[i]]
+            for i in male_dict.keys()
+        }, {
+            str(i) + "F": [str(j["name"]) + "M" for j in female_dict[i]]
+            for i in female_dict.keys()
         }
     return {i: [j["name"] for j in male_dict[i]] for i in male_dict.keys()}
 
