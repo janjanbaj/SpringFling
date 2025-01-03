@@ -1,14 +1,16 @@
 import numpy as np
 import bisect
 
-from stdlib import Graph
-
 NUMBER_OF_PEOPLE = 20
 NUMBER_OF_CATEGORIES = 5
 NUMBER_OF_QUESTIONS = 10
 
 
-def generate_responses():
+def generate_responses(
+    NUMBER_OF_PEOPLE=NUMBER_OF_PEOPLE,
+    NUMBER_OF_CATEGORIES=NUMBER_OF_CATEGORIES,
+    NUMBER_OF_QUESTIONS=NUMBER_OF_QUESTIONS,
+):
     # the first index will correspond to the i'th person and their reponse
     # the second index will correspond to the j'th category of questions.
     # the third index will correspond to the k'th question within the i'th category of questions.
@@ -258,44 +260,44 @@ def stable_matching_homo(pref):
     return matches
 
 
-def all_stable_marriages(mpl, fpl, n):
-    marriage = []
-    male_counter = []
-    unchanged = [-1 for _ in range(n)]
-    success = False
-
-    def proposal(i, malec, marriage,c):
-        if i < 0:
-            success = True
-        elif  i = 0 or malec[i] = n+1 or not unchanged[i]:
-            success = False
-        else:
-            c = c + 1
-            j = malec[i]
-            malec[i] = j+1
-            refusal(i, mpl[i][j], marriage, c)
-        return 
-
-    def refusal(i,j, malec, marriage,c):
-        
-
-    def break_marriage(male_counter, marriage, i, n, count):
-        marriage[mpl[i][male_counter[i] - 1]] = -i
-        proposal(i, male_counter, marriage, count)
-        if not success:
-            unchanged[i] = False
-            return
-        # stable_marriage(marriage, n, count)
-        for j in range(i, n):
-            break_marriage(male_counter, marriage, j, n, count)
-        for j in range(i + 1, n):
-            unchanged[j] = True
-        unchanged[i] = False
-        return
-
-
-    # i,j,k
-    return
+# def all_stable_marriages(mpl, fpl, n):
+#    marriage = []
+#    male_counter = []
+#    unchanged = [-1 for _ in range(n)]
+#    success = False
+#
+#    def proposal(i, malec, marriage,c):
+#        if i < 0:
+#            success = True
+#        elif  i = 0 or malec[i] = n+1 or not unchanged[i]:
+#            success = False
+#        else:
+#            c = c + 1
+#            j = malec[i]
+#            malec[i] = j+1
+#            refusal(i, mpl[i][j], marriage, c)
+#        return
+#
+#    def refusal(i,j, malec, marriage,c):
+#
+#
+#    def break_marriage(male_counter, marriage, i, n, count):
+#        marriage[mpl[i][male_counter[i] - 1]] = -i
+#        proposal(i, male_counter, marriage, count)
+#        if not success:
+#            unchanged[i] = False
+#            return
+#        # stable_marriage(marriage, n, count)
+#        for j in range(i, n):
+#            break_marriage(male_counter, marriage, j, n, count)
+#        for j in range(i + 1, n):
+#            unchanged[j] = True
+#        unchanged[i] = False
+#        return
+#
+#
+#    # i,j,k
+#    return
 
 
 def test_random_ttc_hetero():
