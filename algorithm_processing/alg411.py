@@ -172,33 +172,89 @@ def recursive_stable_matching(male_pref, female_pref):
 ##    return stable_marriages
 
 
-def all_stable_marriages(male_pref, female_pref):
-    male_optimal = recursive_stable_matching(male_pref, female_pref)
+## def all_stable_marriages(male_pref, female_pref):
+##     stable_matches = []
+##     unchanged = {i: True for i in male_pref.keys()}
+##     # since men are the keys in this convention, we are getting the index of their matches in
+##     # the male optimal solution.
+##     man_list = sorted(list(male_pref.keys()))
+##     starting_marriage = {i: None for i in sorted(female_pref.keys())}
+##     male_count = {i: 0 for i in man_list}
+##     woman_list = sorted(list(female_pref.keys()))
+##
+##     def found_stable_marriage(marriage):
+##         stable_matches.append(marriage)
+##         return
+##
+##     def refusal(current_woman, potential_huzz, marriages):
+##         current_huzz = marriages.get(current_woman)
+##         # if not married to anyone then just marry them off. gets rid of the dummy husband requirement.
+##         if current_huzz is None:
+##             current_huzz_index = maxsize
+##         else:
+##             current_huzz = current_huzz.lstrip("-")
+##             current_huzz_index = female_pref[current_woman].index(current_huzz)
+##         potential_huzz_index = female_pref[current_woman].index(potential_huzz)
+##         # either case, potential huzz cannot get the same woman twice, so increase their count.
+##         male_count[potential_huzz] += 1
+##         # Check if current woman prefers the potential husband more than who she is married to.
+##         if potential_huzz_index < current_huzz_index:
+##             # switch marriage
+##             marriages[current_woman] = potential_huzz
+##             # remove current woman from new husband's list because they cant get married again if she decides to divorce him.
+##
+##             if current_huzz is None:
+##                 return False
+##
+##             return proposal(current_huzz, marriages)
+##         # call proposal on potential husband because he got turned down.
+##         return proposal(potential_huzz, marriages)
+##
+##     def proposal(current_bachelor, marriages):
+##         if current_bachelor[0] == "-":
+##             current_bachelor = current_bachelor.lstrip("-")
+##         if (
+##             male_count[current_bachelor] == len(male_pref.keys()) - 1
+##             or unchanged[current_bachelor] is False
+##         ):
+##             return False
+##             # instead of having a dummy male, we just call this function iif we want to match the male with their next prefered
+##             # partner.
+##         male_count[current_bachelor] += 1
+##         potential_wifey = male_pref[current_bachelor][male_count[current_bachelor]]
+##         refusal(potential_wifey, current_bachelor, marriages)
+##         return True
+##
+##     def break_marriage(man, marriage):
+##         # break the marriage for man by reversing the search since marriage is indexed by women.
+##         marriage[male_pref[man][male_count[man]]] = "-" + man
+##         success = proposal(man, marriage)
+##         if success:
+##             found_stable_marriage(marriage)
+##             man_index = man_list.index(man)
+##             for next_man in man_list[man_index : len(man_list) - 1]:
+##                 break_marriage(next_man, marriage)
+##             for next_man in man_list[man_index + 1 : len(man_list) - 1]:
+##                 unchanged[next_man] = True
+##         unchanged[man] = False
+##         return
+##
+##     for man in man_list:
+##         proposal(man, starting_marriage)
+##     found_stable_marriage(starting_marriage)
+##     print("Male-Optimal")
+##     ppdictionary(starting_marriage)
+##
+##     for man in man_list:
+##         break_marriage(man, starting_marriage)
+##
+##     print(stable_matches)
+##
+##     return stable_matches
 
-    stable_matches = [male_optimal]
-    success = False
-    unchanged = {i: False for i in male_pref.keys()}
-    # since men are the keys in this convention, we are getting the index of their matches in
-    # the male optimal solution. 
-    male_count = {i: male_pref[i].index(male_optimal[i]) for i in male_optimal.keys()}
 
-    def found_stable_marriage(marriage):
-        stable_matches.append(marriage)
-        success = True
-        return
-
-    def refusal(woman, potential_man, marriage):
-        current_huzz = marriage.get()
-
-    def proposal(man, potential_wifey, marriage):
-
-
-
-    def break_marriage(man, marriage):
-        # check the last stable marriage and break it 
-        marriage[stable_matches[-1][man]] = None
-        proposal()
-
+def all_stable_matching():
+    stable_matches = []
 
 
 def main():
@@ -228,7 +284,7 @@ def main():
     #    "Both Gale-Shapley and Recursive Must Be Identical as they are both give Male-Optimal Solutions"
     # )
 
-    mariages = all_stable_matchings(mdGS, fdGS)
+    mariages = all_stable_marriages(mdGS, fdGS)
     for mar in mariages:
         print(f"\n{ppdictionary(mar)}\n")
 
