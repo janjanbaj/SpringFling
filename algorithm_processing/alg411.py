@@ -71,12 +71,12 @@ class StableMatchingAll:
         self.success = False
         self.man_list = sorted(list(male_pref.keys()))
         self.unchanged = {i: True for i in self.man_list}
-        self.marraige = {i: None for i in female_pref.keys()}
+        self.marriage = {i: None for i in female_pref.keys()}
         self.male_count = {i: 0 for i in self.man_list}
         self.stable = []
 
-    def refusal(self, potential_man, woman, male_count):
-        current_husband = self.marraige[woman]
+    def refusal(self, potential_man, woman, male_count, marriage):
+        current_husband = marriage[woman]
         current_husband_index = maxsize
         # print(f"WM:{woman} | PM:{potential_man} | CM: {current_husband}")
         if current_husband is not None:
@@ -87,21 +87,21 @@ class StableMatchingAll:
         # increase count such that potential_man will never be matched with woman
         male_count[potential_man] += 1
         if potential_man_index < current_husband_index:
-            self.marraige[woman] = potential_man
+            marriage[woman] = potential_man
             # call proposal on current hus
             if current_husband is None:
                 return
             # swap with pm if cm gets cucked and cm is negative
             # if current_husband[0] == "-":
-            #    self.marraige[
+            #    marriage[
             #        self.male_choice[potential_man][male_count[potential_man] - 1]
             #    ] = current_husband.lstrip("-")
 
-            return self.proposal(current_husband, male_count)
+            return self.proposal(current_husband, male_count, marriage)
         # call propossal on potential man
-        return self.proposal(potential_man, male_count)
+        return self.proposal(potential_man, male_count, marriage)
 
-    def proposal(self, man, male_count):
+    def proposal(self, man, male_count, marriage):
         # print(f"Trying to Marry:{man} | {male_count}")
         if man[0] == "-":
             self.success = True
@@ -109,49 +109,57 @@ class StableMatchingAll:
             self.success = False
         else:
             # self.male_count[man] += 1
-            self.refusal(man, self.male_choice[man][male_count[man]], male_count)
+            self.refusal(
+                man, self.male_choice[man][male_count[man]], male_count, marriage
+            )
         return
 
-    def found_stable(self):
-        # print(f"Found Stable Marriage: { {self.marraige[i]:i for i in self.marraige} }")
-        self.stable.append(self.marraige.copy())
+    def found_stable(self, marriage):
+        # print(f"Found Stable Marriage: { {marriage[i]:i for i in marriage} }")
+        self.stable.append(marriage.copy())
         return
 
-    def break_marriage(self, man):
+    def break_marriage(self, man, marriage):
         # print(man, self.male_choice[man], self.male_count[man])
         # male count points to the next woman so you have to subtract one
-        self.marraige[self.male_choice[man][self.male_count[man] - 1]] = "-" + man
-        self.proposal(man, self.male_count.copy())
+        temp = marriage.copy()
+        marriage[self.male_choice[man][self.male_count[man] - 1]] = "-" + man
+        self.proposal(man, self.male_count.copy(), marriage)
         if self.success:
-            self.found_stable()
+            print(man, self.male_choice[man][self.male_count[man] - 1])
+            print(f"Temp: {flip_keys_values(temp)}")
+            print(f"Soln: {flip_keys_values(marriage)}")
+            self.found_stable(marriage)
 
             for next in self.man_list[self.man_list.index(man) : -2]:
-                self.break_marriage(next)
+                marriage = self.break_marriage(next, marriage)
 
             for next in self.man_list[self.man_list.index(man) + 1 : -2]:
                 self.unchanged[next] = True
+        else:
+            print("Used Backup")
+            marriage = temp
+
         self.unchanged[man] = False
-        self.marraige = self.stable[-1].copy()
-        return
+        return marriage
 
     def all_stable(self):
         for man in self.man_list:
-            self.proposal(man, self.male_count)
+            self.proposal(man, self.male_count, self.marriage)
 
-        self.found_stable()
+        self.found_stable(self.marriage)
 
-        for man in self.man_list:
-            self.break_marriage(man)
-
-        [ppdictionary(i) for i in self.stable]
+        for man in self.man_list[0:-2]:
+            self.break_marriage(man, self.marriage.copy())
+        # [ppdictionary(flip_keys_values(i)) for i in self.stable]
 
 
 def main():
-    male = generate_responses(10, 5, 5)
-    female = generate_responses(10, 5, 5)
-    male_preference, female_preference = generate_prefrence_list(male, female)
-    md, fd = flatten_preference_dictionary(male_preference, female_preference)
-    mdGS, fdGS = flatten_preference_dictionary(male_preference, female_preference)
+    # male = generate_responses(10, 5, 5)
+    # female = generate_responses(10, 5, 5)
+    # male_preference, female_preference = generate_prefrence_list(male, female)
+    # md, fd = flatten_preference_dictionary(male_preference, female_preference)
+    # mdGS, fdGS = flatten_preference_dictionary(male_preference, female_preference)
 
     # Sample from the paper
     mpl = [
