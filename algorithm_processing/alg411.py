@@ -128,22 +128,21 @@ class StableMatchingAll:
         marriage[self.male_choice[man][male_count[man] - 1]] = "-" + man
         self.proposal(man, male_count, marriage)
         if self.success:
-            print(man, self.male_choice[man][male_count[man] - 1])
+            print(f"Success: {man}")
             # print(
-            #    f"Temp: {flip_keys_values(temp)}"
+            #    f"Temp: {flip_keys_values(backup_marriage)}"
             #    + "\n"
             #    + f"Soln: {flip_keys_values(marriage)}"
             # )
-            print(ppdictionary(flip_keys_values(marriage)))
+            # print(ppdictionary(flip_keys_values(marriage)))
             self.found_stable(marriage)
 
-            for next in self.man_list[self.man_list.index(man) : -1]:
+            for next in self.man_list[self.man_list.index(man) :]:
                 self.break_marriage(next, marriage.copy(), male_count.copy())
 
-            for next in self.man_list[self.man_list.index(man) + 1 : -2]:
+            for next in self.man_list[self.man_list.index(man) + 1 : -1]:
                 self.unchanged[next] = True
         else:
-            print(f"Failed {man}")
             # print("Used Backup")
             marriage = backup_marriage
             male_count = backup_malecount
@@ -161,9 +160,11 @@ class StableMatchingAll:
         print(f"Male Optimal: {flip_keys_values(marriage)}")
 
         for man in self.man_list[0:-2]:
-            marriage, male_count = self.break_marriage(man, marriage, male_count)
+            marriage, male_count = self.break_marriage(
+                man, marriage.copy(), male_count.copy()
+            )
         print(f"Number of Solutions: {len(self.stable)}")
-        # [ppdictionary(flip_keys_values(i)) for i in self.stable]
+        [ppdictionary(flip_keys_values(i)) for i in self.stable]
 
 
 def main():
