@@ -107,6 +107,7 @@ class StableMatchingAll:
             self.success = True
         elif male_count[man] == len(self.man_list) or self.unchanged[man] is False:
             self.success = False
+            return
         else:
             # self.male_count[man] += 1
             self.refusal(
@@ -119,38 +120,49 @@ class StableMatchingAll:
         self.stable.append(marriage.copy())
         return
 
-    def break_marriage(self, man, marriage):
+    def break_marriage(self, man, marriage, male_count):
         # print(man, self.male_choice[man], self.male_count[man])
         # male count points to the next woman so you have to subtract one
-        temp = marriage.copy()
-        marriage[self.male_choice[man][self.male_count[man] - 1]] = "-" + man
-        self.proposal(man, self.male_count.copy(), marriage)
+        backup_marriage = marriage.copy()
+        backup_malecount = male_count.copy()
+        marriage[self.male_choice[man][male_count[man] - 1]] = "-" + man
+        self.proposal(man, male_count, marriage)
         if self.success:
-            print(man, self.male_choice[man][self.male_count[man] - 1])
-            print(f"Temp: {flip_keys_values(temp)}")
-            print(f"Soln: {flip_keys_values(marriage)}")
+            print(man, self.male_choice[man][male_count[man] - 1])
+            # print(
+            #    f"Temp: {flip_keys_values(temp)}"
+            #    + "\n"
+            #    + f"Soln: {flip_keys_values(marriage)}"
+            # )
+            print(ppdictionary(flip_keys_values(marriage)))
             self.found_stable(marriage)
 
-            for next in self.man_list[self.man_list.index(man) : -2]:
-                marriage = self.break_marriage(next, marriage)
+            for next in self.man_list[self.man_list.index(man) : -1]:
+                self.break_marriage(next, marriage.copy(), male_count.copy())
 
             for next in self.man_list[self.man_list.index(man) + 1 : -2]:
                 self.unchanged[next] = True
         else:
-            print("Used Backup")
-            marriage = temp
+            print(f"Failed {man}")
+            # print("Used Backup")
+            marriage = backup_marriage
+            male_count = backup_malecount
 
         self.unchanged[man] = False
-        return marriage
+        return marriage, male_count
 
     def all_stable(self):
         for man in self.man_list:
             self.proposal(man, self.male_count, self.marriage)
 
         self.found_stable(self.marriage)
+        marriage = self.marriage.copy()
+        male_count = self.male_count.copy()
+        print(f"Male Optimal: {flip_keys_values(marriage)}")
 
         for man in self.man_list[0:-2]:
-            self.break_marriage(man, self.marriage.copy())
+            marriage, male_count = self.break_marriage(man, marriage, male_count)
+        print(f"Number of Solutions: {len(self.stable)}")
         # [ppdictionary(flip_keys_values(i)) for i in self.stable]
 
 
