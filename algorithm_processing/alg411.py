@@ -120,7 +120,7 @@ class StableMatchingAll:
         self.stable.append(marriage.copy())
         return
 
-    def break_marriage(self, man, marriage, male_count):
+    def break_marriage(self, man, marriage, male_count, history=[]):
         # print(man, self.male_choice[man], self.male_count[man])
         # male count points to the next woman so you have to subtract one
         backup_marriage = marriage.copy()
@@ -128,17 +128,19 @@ class StableMatchingAll:
         marriage[self.male_choice[man][male_count[man] - 1]] = "-" + man
         self.proposal(man, male_count, marriage)
         if self.success:
-            print(f"Success: {man}")
+            print(f"Success: {man} and {history}")
             # print(
             #    f"Temp: {flip_keys_values(backup_marriage)}"
             #    + "\n"
             #    + f"Soln: {flip_keys_values(marriage)}"
             # )
-            # print(ppdictionary(flip_keys_values(marriage)))
+            ppdictionary(flip_keys_values(marriage))
             self.found_stable(marriage)
 
-            for next in self.man_list[self.man_list.index(man) :]:
-                self.break_marriage(next, marriage.copy(), male_count.copy())
+            for next in self.man_list[self.man_list.index(man) : -1]:
+                self.break_marriage(
+                    next, marriage.copy(), male_count.copy(), history + [next]
+                )
 
             for next in self.man_list[self.man_list.index(man) + 1 : -1]:
                 self.unchanged[next] = True
@@ -159,12 +161,12 @@ class StableMatchingAll:
         male_count = self.male_count.copy()
         print(f"Male Optimal: {flip_keys_values(marriage)}")
 
-        for man in self.man_list[0:-2]:
+        for man in self.man_list[0:-1]:
             marriage, male_count = self.break_marriage(
-                man, marriage.copy(), male_count.copy()
+                man, marriage.copy(), male_count.copy(), [man]
             )
         print(f"Number of Solutions: {len(self.stable)}")
-        [ppdictionary(flip_keys_values(i)) for i in self.stable]
+        # [ppdictionary(flip_keys_values(i)) for i in self.stable]
 
 
 def main():
@@ -195,8 +197,8 @@ def main():
         [7, 5, 2, 1, 8, 6, 4, 3],
         [7, 4, 1, 5, 2, 3, 6, 8],
     ]
-    md = {f"{i+1}M": [f"{j}F" for j in mpl[i]] for i in range(len(mpl))}
-    fd = {f"{i+1}F": [f"{j}M" for j in fpl[i]] for i in range(len(fpl))}
+    md = {f"{i + 1}M": [f"{j}F" for j in mpl[i]] for i in range(len(mpl))}
+    fd = {f"{i + 1}F": [f"{j}M" for j in fpl[i]] for i in range(len(fpl))}
     print("Male Preference Table")
     ppdictionary(md)
 
