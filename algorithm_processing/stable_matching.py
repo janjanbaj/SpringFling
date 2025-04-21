@@ -1,13 +1,16 @@
 import numpy as np
 import bisect
 
-
-NUMBER_OF_PEOPLE = 5
+NUMBER_OF_PEOPLE = 20
 NUMBER_OF_CATEGORIES = 5
 NUMBER_OF_QUESTIONS = 10
 
 
-def generate_responses():
+def generate_responses(
+    NUMBER_OF_PEOPLE=NUMBER_OF_PEOPLE,
+    NUMBER_OF_CATEGORIES=NUMBER_OF_CATEGORIES,
+    NUMBER_OF_QUESTIONS=NUMBER_OF_QUESTIONS,
+):
     # the first index will correspond to the i'th person and their reponse
     # the second index will correspond to the j'th category of questions.
     # the third index will correspond to the k'th question within the i'th category of questions.
@@ -33,9 +36,68 @@ def generate_responses():
     return responses
 
 
+def generate_homo_preference_list(popn):
+    result_dict = {}
+
+    for man_index in range(len(popn) - 1):
+        current_man = popn[man_index]
+
+        if result_dict.get(man_index) is None:
+            result_dict[man_index] = []
+
+        male_weight = current_man[:, 0]
+        male_responses = current_man[:, 1:]
+
+        for woman_index in range(man_index + 1, len(popn)):
+            current_woman = popn[woman_index]
+
+            female_weight = current_woman[:, 0]
+            female_responses = current_woman[:, 1:]
+
+            result = male_responses - female_responses
+
+            if result_dict.get(woman_index) is None:
+                result_dict[woman_index] = []
+
+            male_weighted_distance = np.sqrt(
+                male_weight.reshape((len(male_weight), 1)) * (result * result)
+            ).sum(1)
+            female_weighted_distance = np.sqrt(
+                female_weight.reshape((len(female_weight), 1)) * (result * result)
+            ).sum(1)
+
+            male_weighted_distance = np.mean(male_weighted_distance) + np.var(
+                male_weighted_distance
+            )
+            female_weighted_distance = np.mean(female_weighted_distance) + np.var(
+                female_weighted_distance
+            )
+
+            bisect.insort(
+                result_dict[man_index],
+                {"name": woman_index, "value": male_weighted_distance},
+                key=lambda x: x["value"],
+            )
+
+            bisect.insort(
+                result_dict[woman_index],
+                {"name": man_index, "value": female_weighted_distance},
+                key=lambda x: x["value"],
+            )
+
+    return result_dict
+
+
 # TODO: need to deal with the case where there is an inequal pool. probably figure out who the least prefered person is
 # delete them from everything and have a special state for them .
 def generate_prefrence_list(male, female):
+    # print("\nPreference List Calculations: ")
+
+    if len(male) != len(female):
+        raise ValueError(
+            "Both pools have to be of same size! Cannot run Stable Matching with inequal pools."
+        )
+
     male_dict = {}
     female_dict = {}
 
@@ -52,6 +114,9 @@ def generate_prefrence_list(male, female):
             female_responses = current_woman[:, 1:]
 
             result = male_responses - female_responses
+
+            # print(f"{male_responses}\n{female_responses}\n{result}\n{result.sum(1)}\n")
+            # print(f"MW:{male_weight}|FW:{female_weight}")
 
             if female_dict.get(woman_index) is None:
                 female_dict[woman_index] = []
@@ -86,6 +151,9 @@ def generate_prefrence_list(male, female):
                 female_weighted_distance
             )
 
+            # print(f"M{man_index} & F{woman_index}: {male_weighted_distance}")
+            # print(f"F{woman_index} & M{man_index}: {female_weighted_distance}")
+
             # insert such that it is in ascending order ie. lower distance matches, those are better matches, are ahead in the list.
             # for men use the male_weighted_distance and for women use the corresponding.
 
@@ -101,20 +169,35 @@ def generate_prefrence_list(male, female):
                 key=lambda x: x["value"],
             )
 
+    # print("")
     return male_dict, female_dict
 
 
-def flatten_preference_dictionary(male_dict, female_dict):
-    return {i: [j["name"] for j in male_dict[i]] for i in male_dict.keys()}, {
-        i: [j["name"] for j in female_dict[i]] for i in female_dict.keys()
-    }
+def flatten_preference_dictionary(male_dict, female_dict=None, tags=True):
+    if female_dict is not None:
+        if tags is False:
+            return {i: [j["name"] for j in male_dict[i]] for i in male_dict.keys()}, {
+                i: [j["name"] for j in female_dict[i]] for i in female_dict.keys()
+            }
+        return {
+            str(i) + "M": [str(j["name"]) + "F" for j in male_dict[i]]
+            for i in male_dict.keys()
+        }, {
+            str(i) + "F": [str(j["name"]) + "M" for j in female_dict[i]]
+            for i in female_dict.keys()
+        }
+    return {i: [j["name"] for j in male_dict[i]] for i in male_dict.keys()}
 
 
 # Stable Matching Algorithm [Self-Implemented based on https://medium.com/@satyalumesh/gale-shapley-algorithm-for-stable-matching-easyexpalined-17ee51ec0dfa]
 
 
-def stable_matching_github(male_pref, female_pref):
+def stable_matching_hetero(male_pref, female_pref):
     free_men = list(male_pref.keys())
+
+    # remove positional biases
+    np.random.shuffle(free_men)
+
     matches = {i: "" for i in free_men}
     married_women = {}
 
@@ -127,7 +210,7 @@ def stable_matching_github(male_pref, female_pref):
             if married_women.get(wifey) is None:
                 matches[bachelor] = wifey
                 married_women[wifey] = bachelor
-                print(f"M{bachelor} and F{wifey} get Married !")
+                # print(f"M{bachelor} and F{wifey} get Married !")
                 free_men.remove(bachelor)
                 break
             # if wifey is married to someone else currently, then we need to see if we will home-wreck
@@ -137,27 +220,126 @@ def stable_matching_github(male_pref, female_pref):
                 matches.pop(op)
                 matches[bachelor] = wifey
                 married_women[wifey] = bachelor
-                print(
-                    f"F{wifey} and M{op} get divorced but M{bachelor} and F{wifey} get Married !"
-                )
+                # print(
+                #     f"F{wifey} and M{op} get divorced but M{bachelor} and F{wifey} get Married !"
+                # )
                 free_men.remove(bachelor)
                 free_men.append(op)
                 break
     return matches
 
 
+def stable_matching_homo(pref):
+    free_people = list(pref.keys())
+
+    if len(free_people) % 2 != 0:
+        raise ValueError("Must have an even mating pool to run Stable Matching.")
+
+    np.random.shuffle(free_people)
+
+    matches = {}
+
+    while len(free_people) != 0:
+        bachelor = free_people[0]
+
+        for wifey in pref[bachelor]:
+            if matches.get(wifey) is None:
+                matches[bachelor] = wifey
+                matches[wifey] = bachelor
+                # print(f"{bachelor} & {wifey} get Married !")
+                free_people.remove(bachelor)
+                free_people.remove(wifey)
+                break
+
+            op = matches[wifey]
+
+            # print(f"W{wifey} | OP:{op} | Bach:{bachelor}")
+
+            if pref[wifey].index(op) > pref[wifey].index(bachelor):
+                matches.pop(op)
+                matches[bachelor] = wifey
+                matches[wifey] = bachelor
+                # print(f"{op} & {wifey} get Divorced !")
+                # print(f"{bachelor} & {wifey} get Married !")
+                free_people.remove(bachelor)
+                free_people.append(op)
+                break
+
+    return matches
+
+
+# def all_stable_marriages(mpl, fpl, n):
+#    marriage = []
+#    male_counter = []
+#    unchanged = [-1 for _ in range(n)]
+#    success = False
+#
+#    def proposal(i, malec, marriage,c):
+#        if i < 0:
+#            success = True
+#        elif  i = 0 or malec[i] = n+1 or not unchanged[i]:
+#            success = False
+#        else:
+#            c = c + 1
+#            j = malec[i]
+#            malec[i] = j+1
+#            refusal(i, mpl[i][j], marriage, c)
+#        return
+#
+#    def refusal(i,j, malec, marriage,c):
+#
+#
+#    def break_marriage(male_counter, marriage, i, n, count):
+#        marriage[mpl[i][male_counter[i] - 1]] = -i
+#        proposal(i, male_counter, marriage, count)
+#        if not success:
+#            unchanged[i] = False
+#            return
+#        # stable_marriage(marriage, n, count)
+#        for j in range(i, n):
+#            break_marriage(male_counter, marriage, j, n, count)
+#        for j in range(i + 1, n):
+#            unchanged[j] = True
+#        unchanged[i] = False
+#        return
+#
+#
+#    # i,j,k
+#    return
+
+
+def test_random_ttc_hetero():
+    print("\nTop Trading Cycle Random:\n")
+
+    male = generate_responses()
+    female = generate_responses()
+
+    print(male, female)
+
+
+# Assumes that matches is a dictionary with key as males and values as females
+def score_matching(matches, male_pref, female_pref):
+    score = 0
+    for male in matches.keys():
+        female = matches[male]
+        score += female_pref[female].index(male) + male_pref[male].index(female)
+    return score
+
+
 # Accessory Functions:
 
 
-# Pretty Print Dictionary
+## Pretty Print Dictionary
 def ppdictionary(dic):
     print("{")
-    for key in dic.keys():
+    for key in sorted(dic.keys()):
         print(f"{key}: {dic[key]}")
     print("}")
 
 
-if __name__ == "__main__":
+def test_random_stable_matching_hetero():
+    print("\nStable Matching Hetero Demo:\n")
+
     male = generate_responses()
 
     female = generate_responses()
@@ -184,8 +366,33 @@ if __name__ == "__main__":
 
     print("\nStable Matching:\n")
 
-    matches = stable_matching_github(md, fd)
+    matches = stable_matching_hetero(md, fd)
 
     print("")
 
     ppdictionary(matches)
+
+
+def test_random_stable_matching_homo():
+    print("\nStable Matching Homo Demo:\n")
+
+    popn1 = generate_responses()
+    popn2 = generate_responses()
+
+    popn = popn1 | popn2
+
+    result = flatten_preference_dictionary(generate_homo_preference_list(popn))
+
+    ppdictionary(result)
+    print("")
+
+    matches = stable_matching_homo(result)
+
+    ppdictionary(matches)
+    print("")
+
+
+if __name__ == "__main__":
+    # test_random_stable_matching_hetero()
+    # test_random_stable_matching_homo()
+    test_random_ttc_hetero()

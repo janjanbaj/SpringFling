@@ -1,19 +1,17 @@
 package main
 
 import (
-    "log"
+	"log"
 
-    "github.com/pocketbase/pocketbase"
+	"github.com/pocketbase/pocketbase"
 )
-
 
 func main() {
 
-    app := pocketbase.New()
+	app := pocketbase.New()
 
-
-    if err := app.Start(); err != nil {
-        log.Fatal(err)
-    }
+	if err := app.Start(); err != nil {
+		log.Fatal(err)
+	}
 
 }
